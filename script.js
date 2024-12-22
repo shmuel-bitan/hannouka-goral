@@ -1,139 +1,78 @@
-const http = require("http");
-const fs = require("fs");
-const url = require("url");
-const path = require("path");
+const API_URL = "https://hannouka-goral.onrender.com"; // URL de votre serveur distant
 
-const DATA_FILE = "data.json";
-const PORT = 3000;
+const drawerSelect = document.getElementById("drawer");
+const drawButton = document.getElementById("drawButton");
+const confirmButton = document.getElementById("confirmButton");
+const recipientElement = document.getElementById("recipient");
 
-function loadData() {
-  if (!fs.existsSync(DATA_FILE)) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify({ participants: [], drawn: [], records: [] }));
+// Charger les participants au chargement de la page
+window.onload = async () => {
+  try {
+    const response = await fetch(`${API_URL}/data`);
+    const data = await response.json();
+    data.participants.forEach((participant) => {
+      const option = document.createElement("option");
+      option.value = participant;
+      option.textContent = participant;
+      drawerSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Erreur lors du chargement des participants :", error);
+    alert("Impossible de charger les participants. Réessayez plus tard.");
   }
-  return JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
-}
-
-function saveData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
-
-const nameOverrides = {
-  Tati: "Sarah",
-  Judith: "Guil",
-  Guil: "Shmuel",
-  Shmuel: "Papa",
 };
 
-const server = http.createServer((req, res) => {
-  const parsedUrl = url.parse(req.url, true);
-  const pathname = parsedUrl.pathname;
-
-  if (pathname === "/data" && req.method === "GET") {
-    const data = loadData();
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(data));
-  } else if (pathname === "/draw" && req.method === "POST") {
-    let body = "";
-    req.on("data", (chunk) => (body += chunk));
-    req.on("end", () => {
-      const { drawer } = JSON.parse(body);
-      const data = loadData();
-
-      if (!drawer || !data.participants.includes(drawer)) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Invalid or non-participant name." }));
-        return;
-      }
-
-      if (data.records.some((record) => record.drawer === drawer)) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "You have already drawn a name." }));
-        return;
-      }
-
-      let recipient;
-      if (nameOverrides[drawer]) {
-        recipient = nameOverrides[drawer];
-        // Remove the recipient from participants
-        data.participants = data.participants.filter((p) => p !== recipient);
-      } else {
-        const remaining = data.participants.filter(
-          (p) => !data.drawn.includes(p) && p !== drawer
-        );
-
-        if (remaining.length === 0) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "All names have been drawn." }));
-          return;
-        }
-
-        recipient = remaining[Math.floor(Math.random() * remaining.length)];
-        // Remove the recipient from participants
-        data.participants = data.participants.filter((p) => p !== recipient);
-      }
-
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ recipient }));
-    });
-  } else if (pathname === "/confirm" && req.method === "POST") {
-    let body = "";
-    req.on("data", (chunk) => (body += chunk));
-    req.on("end", () => {
-      const { drawer, recipient } = JSON.parse(body);
-      const data = loadData();
-
-      if (
-        !drawer ||
-        !recipient ||
-        !data.participants.includes(drawer) ||
-        !data.participants.includes(recipient)
-      ) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Invalid data." }));
-        return;
-      }
-
-      if (data.records.some((record) => record.drawer === drawer)) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "You have already confirmed a draw." }));
-        return;
-      }
-
-      data.drawn.push(recipient);
-      data.records.push({ drawer, recipient });
-      saveData(data);
-
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ success: true }));
-    });
-  } else if (pathname === "/" && req.method === "GET") {
-    const filePath = path.join(__dirname, "index.html");
-    fs.readFile(filePath, (err, content) => {
-      if (err) {
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Internal Server Error");
-      } else {
-        res.writeHead(200, { "Content-Type": "text/html" });
-        res.end(content);
-      }
-    });
-  } else if (pathname === "/script.js" && req.method === "GET") {
-    const filePath = path.join(__dirname, "script.js");
-    fs.readFile(filePath, (err, content) => {
-      if (err) {
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Internal Server Error");
-      } else {
-        res.writeHead(200, { "Content-Type": "application/javascript" });
-        res.end(content);
-      }
-    });
-  } else {
-    res.writeHead(404, { "Content-Type": "text/plain" });
-    res.end("Not Found");
+// Tirer un nom
+drawButton.onclick = async () => {
+  const drawer = drawerSelect.value;
+  if (!drawer) {
+    alert("Veuillez sélectionner votre nom.");
+    return;
   }
-});
 
-server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+  try {
+    const response = await fetch(`${API_URL}/draw`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ drawer }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      recipientElement.textContent = `Vous avez tiré : ${data.recipient}`;
+      recipientElement.style.display = "block";
+      confirmButton.style.display = "inline-block";
+    } else {
+      alert(data.error);
+    }
+  } catch (error) {
+    console.error("Erreur lors du tirage :", error);
+    alert("Une erreur s'est produite lors du tirage. Réessayez plus tard.");
+  }
+};
+
+// Confirmer le tirage
+confirmButton.onclick = async () => {
+  const drawer = drawerSelect.value;
+  const recipient = recipientElement.textContent.split(": ")[1];
+
+  try {
+    const response = await fetch(`${API_URL}/confirm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ drawer, recipient }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      alert("Votre tirage a été confirmé !");
+      recipientElement.style.display = "none";
+      confirmButton.style.display = "none";
+    } else {
+      alert(data.error);
+    }
+  } catch (error) {
+    console.error("Erreur lors de la confirmation :", error);
+    alert("Une erreur s'est produite lors de la confirmation. Réessayez plus tard.");
+  }
+};
