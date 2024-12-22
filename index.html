@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hanukkah Gift Lottery</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #cce7ff, #ffffff);
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    h1 {
+      color: #0056b3;
+      margin-bottom: 20px;
+    }
+
+    select, button {
+      font-size: 16px;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    select {
+      width: 100%;
+    }
+
+    button {
+      background-color: #0056b3;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #003d7a;
+    }
+
+    #recipient {
+      font-weight: bold;
+      color: #ff9900;
+      margin-top: 20px;
+    }
+
+    .menorah {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎁 Lotterie de cadeau pour hannou ka 🎉</h1>
+    <div>
+      <label for="drawer">tki:</label>
+      <select id="drawer"></select>
+      <button id="drawButton">Tire un nom </button>
+    </div>
+    <p id="recipient" style="display: none;">Tu dois offrir le cadeau a : </p>
+    <button id="confirmButton" style="display: none;">Cilque ici pour confirmer ( si tu t es pioché toi meme relance la roulette avant de confirmer )</button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
