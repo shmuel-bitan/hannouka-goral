@@ -13,7 +13,8 @@
     "drawn": [
     "Padreeeeeee",
     "Tati",
-    "Harry"
+    "Harry",
+    "Juju"
     ],
     "records": [
     {
@@ -27,6 +28,10 @@
     {
     "drawer": "Nono",
     "recipient": "Harry"
+    },
+    {
+    "drawer": "Sarah",
+    "recipient": "Juju"
     }
     ]
     }
