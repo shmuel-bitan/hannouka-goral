@@ -14,7 +14,8 @@
     "Padreeeeeee",
     "Tati",
     "Harry",
-    "Juju"
+    "Juju",
+    "Sarah"
     ],
     "records": [
     {
@@ -32,6 +33,10 @@
     {
     "drawer": "Sarah",
     "recipient": "Juju"
+    },
+    {
+    "drawer": "Tati",
+    "recipient": "Sarah"
     }
     ]
     }
