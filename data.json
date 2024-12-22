@@ -11,12 +11,22 @@
     "Padreeeeeee"
     ],
     "drawn": [
-    "Padreeeeeee"
+    "Padreeeeeee",
+    "Tati",
+    "Harry"
     ],
     "records": [
     {
     "drawer": "Shmuellegoat",
     "recipient": "Padreeeeeee"
+    },
+    {
+    "drawer": "Juju",
+    "recipient": "Tati"
+    },
+    {
+    "drawer": "Nono",
+    "recipient": "Harry"
     }
     ]
     }
